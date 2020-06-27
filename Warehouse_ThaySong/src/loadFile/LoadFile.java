@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -11,15 +12,46 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class LoadFile {
-	public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {
-		LoadFile lf = new LoadFile();
-		lf.load(",", "E:\\TaiLieuHocTap\\Datawarehouse\\sinhvien_chieu_nhom15.csv");
-//		ex.copy("", "");E:\TaiLieuHocTap\Datawarehouse
+	Connection connection;
+
+	public LoadFile(Connection connection) {
+		super();
+		this.connection = connection;
 	}
 
-	public void load(String delimited, String excelFile) throws ClassNotFoundException, SQLException, IOException {
+	public void loadConfig() throws SQLException, ClassNotFoundException, IOException {
+		String source;
+		String destination;
+		String username_source;
+		String username_des;
+		String pass_source;
+		String pass_des;
+		String fileName;
+		String delimited;
+		Statement st = connection.createStatement();
+		ResultSet rs = st.executeQuery("select * from config");
+		while (rs.next()) {
+			source = rs.getString("source");
+			destination = rs.getString("destination");
+			username_source = rs.getString("username_source");
+			username_des = rs.getString("username_des");
+			pass_source = rs.getString("pass_source");
+			pass_des = rs.getString("pass_des");
+			fileName = rs.getString("fileDataName");
+			delimited = rs.getString("delimited");
+			loadFileCSV(source, username_source, pass_source, delimited, fileName);
+			System.out.println("sucessful");
+		}
 
-		Connection connect = DBConnection.getConnection();
+	}
+
+	public void loadFileCSV(String source, String username, String pass, String delimited, String excelFile)
+			throws ClassNotFoundException, SQLException, IOException {
+//		String jdbcUrl = "jdbc:sqlserver://localhost:1433;databaseName=DATAWAREHOUSE_data_Student";
+//		String username = "sa";
+//		String password = "12345678";
+		Connection connect = null;
+		connect = DriverManager.getConnection(source, username, pass);
 		System.out.println("Connect DB Successfully :)");
 
 		BufferedReader lineReader = new BufferedReader(new FileReader(excelFile));
@@ -53,7 +85,7 @@ public class LoadFile {
 			String numPhone = data[6];
 			String email = data[7];
 			String note = data[8];
-			
+
 			pre.setString(1, number);
 			pre.setString(2, id);
 			pre.setString(3, lastName);
@@ -69,5 +101,4 @@ public class LoadFile {
 		}
 	}
 
-	
 }
