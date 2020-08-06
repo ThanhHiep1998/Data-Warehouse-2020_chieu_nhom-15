@@ -1,0 +1,49 @@
+DROP PROCEDURE IF EXISTS insertToTempTable;
+
+delimiter //
+
+CREATE PROCEDURE insertToTempTable (in table_target varchar(30), in table_target2 varchar(30))
+  BEGIN
+      insert into table_target select *from table_target2;
+  END//
+
+delimiter ;
+call insertToTempTable('sinhvien.temp', 'sinhvien.stagging')
+delimiter //
+
+CREATE PROCEDURE truncateTable ()
+  BEGIN
+
+     TRUNCATE TABLE sinhvien.stagging ;
+  END//
+
+delimiter ;
+SET SQL_SAFE_UPDATES = 0;
+delete from sinhvien.temp where sinhvien.temp.stt like 'stt';
+
+ALTER TABLE sinhvien.temp MODIFY masv varchar(250) AFTER ten;
+
+delimiter //
+
+CREATE PROCEDURE getAllDataconfig (in id_config int)
+  BEGIN
+      SELECT * FROM datacontrol.dataconfig 
+      where datacontrol.dataconfig.id= id_config;
+  END//
+
+delimiter ;log
+call getAllDataconfig(1);
+delimiter //
+
+
+ALTER TABLE t1 ADD ad INT PRIMARY KEY AUTO_INCREMENT;
+
+delimiter //
+
+CREATE PROCEDURE insertSkToTable ( table_target  varchar(50))
+  BEGIN
+  ALTER TABLE table_target ADD sk INT PRIMARY KEY AUTO_INCREMENT;
+  END//
+
+delimiter ;
+call insertSkToTable('t1');
